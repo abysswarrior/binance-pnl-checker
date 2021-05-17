@@ -10,11 +10,14 @@ colorama==0.4.4
 cryptography==3.4.7
 idna==2.10
 multidict==5.1.0
+prettytable==2.1.0
 pycares==4.0.0
 pycparser==2.20
+pyfiglet==0.8.post1
 PySocks==1.7.1
 python-decouple==3.4
 requests==2.25.1
 typing-extensions==3.10.0.0
 urllib3==1.26.4
+wcwidth==0.2.5
 yarl==1.6.3
