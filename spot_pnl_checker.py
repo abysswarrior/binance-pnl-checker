@@ -8,16 +8,19 @@ def assets_info(exchange):
 
     for balance in all_balances:
         if float(balance['free']) != 0:
-            assets[balance['asset']] = account_info[balance['asset']]
+            assets[balance['asset']] = {'amount': account_info[balance['asset']]['free']}
 
-    return assets
+    free_cash = assets['USDT']
+    assets.pop('USDT', None)
+
+    return assets, free_cash
 
 
 if __name__ == '__main__':
     # initial API
     exchange = privet_api_initial()
 
-    assets = assets_info(exchange)
+    assets, USDT_amount = assets_info(exchange)
 
     for symbol in assets.keys():
         try:
