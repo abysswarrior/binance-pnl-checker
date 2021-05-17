@@ -1,4 +1,9 @@
 from api_initial import privet_api_initial
+from colorama import Fore, Style, init
+from prettytable import PrettyTable
+import pyfiglet
+
+init(autoreset=True)
 
 
 def current_info_adder(exchange, assets):
@@ -52,8 +57,8 @@ def trade_info_adder(exchange, assets):
 
 def pnl_info_adder(assets):
     for symbol, data in assets.items():
-        assets[symbol]['pnl'] = data['current_value'] - data['trade_value']
-        assets[symbol]['pnl_percent'] = float("{:.3f}".format((assets[symbol]['pnl'] * 100) / data['trade_value']))
+        assets[symbol]['pnl'] = float("{:.4f}".format(data['current_value'] - data['trade_value']))
+        assets[symbol]['pnl_percent'] = float("{:.4f}".format((assets[symbol]['pnl'] * 100) / data['trade_value']))
 
     return assets
 
@@ -68,9 +73,11 @@ def calculate_total_info(assets, USDT_amount):
         total_pnl_percent += data['pnl_percent']
         portfolio_value += data['current_value']
 
-    portfolio_value += USDT_amount
+    portfolio_value = float("{:.4f}".format(portfolio_value + USDT_amount))
+    total_pnl = float("{:.4f}".format(total_pnl))
+    total_pnl_percent = float("{:.4f}".format(total_pnl_percent))
 
-    return total_pnl , total_pnl_percent, portfolio_value
+    return total_pnl, total_pnl_percent, portfolio_value
 
 
 def assets_info(exchange):
@@ -86,6 +93,45 @@ def assets_info(exchange):
     assets.pop('USDT', None)
 
     return assets, free_cash
+
+
+def pretty_printer(assets, total_pnl, total_pnl_percent, portfolio_value):
+    # create logo
+    logo = pyfiglet.figlet_format("Binance PNL", font="bubble")
+    print(Fore.YELLOW + logo)
+
+    # create table
+    coin_table = PrettyTable(['', 'Symbol', 'PNL', '%PNL'])
+
+    for symbol, data in assets.items():
+
+        if data['pnl'] >= 0:
+
+            coin_table.add_row([Fore.GREEN + "●" + Style.RESET_ALL, Fore.WHITE + Style.BRIGHT + symbol + Style.RESET_ALL,
+                           Fore.GREEN + Style.BRIGHT + '+' + str(data['pnl']) + ' $' + Style.RESET_ALL,
+                           Fore.GREEN + Style.BRIGHT + '+' + str(data['pnl_percent']) + ' %' + Style.RESET_ALL])
+
+        else:
+
+            coin_table.add_row([Fore.RED + "●" + Style.RESET_ALL, Fore.WHITE + Style.BRIGHT + symbol + Style.RESET_ALL,
+                           Fore.RED + Style.BRIGHT + str(data['pnl']) + ' $' + Style.RESET_ALL,
+                           Fore.RED + Style.BRIGHT + str(data['pnl_percent']) + ' %' + Style.RESET_ALL])
+
+    print(coin_table)
+    print(Fore.WHITE + Style.DIM + "++++++++++++++++++++++++++++++++++++++")
+
+    if total_pnl >= 0:
+        print('Total PNL ................ ', Fore.GREEN + '+' + str(total_pnl) + ' $' + Style.RESET_ALL)
+    else:
+        print('Total PNL ................ ', Fore.RED + str(total_pnl) + ' $' + Style.RESET_ALL)
+
+    if total_pnl_percent >= 0:
+        print('Total %PNL ............... ', Fore.GREEN + '+' + str(total_pnl_percent) + ' %' + Style.RESET_ALL)
+    else:
+        print('Total %PNL ............... ', Fore.RED + str(total_pnl_percent) + ' %' + Style.RESET_ALL)
+
+    print('Portfolio Value .......... ', Style.DIM + str(portfolio_value) + ' $' + Style.RESET_ALL)
+
 
 
 if __name__ == '__main__':
@@ -106,5 +152,5 @@ if __name__ == '__main__':
     # calculating total info like : total pnl and total pnl percent ...
     total_pnl, total_pnl_percent, portfolio_value = calculate_total_info(assets, USDT_amount)
 
-    print(assets)
-
+    # print data in proper format
+    pretty_printer(assets, total_pnl, total_pnl_percent, portfolio_value)
