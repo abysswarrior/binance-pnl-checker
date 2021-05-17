@@ -58,8 +58,19 @@ def pnl_info_adder(assets):
     return assets
 
 
-def calculate_total_info(assets):
-    pass
+def calculate_total_info(assets, USDT_amount):
+    total_pnl = 0
+    total_pnl_percent = 0
+    portfolio_value = 0
+
+    for symbol, data in assets.items():
+        total_pnl += data['pnl']
+        total_pnl_percent += data['pnl_percent']
+        portfolio_value += data['current_value']
+
+    portfolio_value += USDT_amount
+
+    return total_pnl , total_pnl_percent, portfolio_value
 
 
 def assets_info(exchange):
@@ -71,7 +82,7 @@ def assets_info(exchange):
         if float(balance['free']) != 0:
             assets[balance['asset']] = {'amount': account_info[balance['asset']]['free']}
 
-    free_cash = assets['USDT']
+    free_cash = assets['USDT']['amount']
     assets.pop('USDT', None)
 
     return assets, free_cash
@@ -92,4 +103,8 @@ if __name__ == '__main__':
     # add pnl and pnl_percent
     assets = pnl_info_adder(assets)
 
+    # calculating total info like : total pnl and total pnl percent ...
+    total_pnl, total_pnl_percent, portfolio_value = calculate_total_info(assets, USDT_amount)
+
     print(assets)
+
