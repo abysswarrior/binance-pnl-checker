@@ -1,16 +1,15 @@
 from api_initial import privet_api_initial
 
+
 def current_info_adder(exchange, assets):
-
     for symbol, data in assets.items():
-
         assets[symbol]['current_price'] = exchange.fetch_ticker(symbol + "/USDT")['last']
         assets[symbol]['current_value'] = assets[symbol]['current_price'] * assets[symbol]['amount']
 
     return assets
 
-def trade_value_calculator(trade_list):
 
+def trade_value_calculator(trade_list):
     # preprocess
     for trade in trade_list:
         if trade['side'] == 'sell':
@@ -38,10 +37,9 @@ def trade_value_calculator(trade_list):
 
     return average_trade_value
 
+
 def trade_info_adder(exchange, assets):
-
     for symbol, data in assets.items():
-
         trade_info = exchange.fetch_my_trades(symbol + "/USDT")
 
         trade_value = trade_value_calculator(trade_info)
@@ -51,14 +49,14 @@ def trade_info_adder(exchange, assets):
 
     return assets
 
+
 def pnl_info_adder(assets):
-
     for symbol, data in assets.items():
-
         assets[symbol]['pnl'] = data['current_value'] - data['trade_value']
         assets[symbol]['pnl_percent'] = float("{:.3f}".format((assets[symbol]['pnl'] * 100) / data['trade_value']))
 
     return assets
+
 
 def calculate_total_info(assets):
     pass
