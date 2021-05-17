@@ -1,5 +1,68 @@
 from api_initial import privet_api_initial
 
+def current_info_adder(exchange, assets):
+
+    for symbol, data in assets.items():
+
+        assets[symbol]['current_price'] = exchange.fetch_ticker(symbol + "/USDT")['last']
+        assets[symbol]['current_value'] = assets[symbol]['current_price'] * assets[symbol]['amount']
+
+    return assets
+
+def trade_value_calculator(trade_list):
+
+    # preprocess
+    for trade in trade_list:
+        if trade['side'] == 'sell':
+            trade['amount'] = trade['amount'] * -1
+            trade['cost'] = trade['cost'] * -1
+
+    total_value = 0
+    trade_stack = {}
+
+    for index, data in enumerate(trade_list):
+
+        total_value = total_value + data['amount']
+
+        if total_value == 0:
+            for stack_index, stack_data in list(trade_stack.items()):
+                if int(stack_index) < index:
+                    trade_stack.pop(stack_index)
+        else:
+            trade_stack[str(index)] = data
+
+    average_trade_value = 0
+
+    for trade_index, trade_data in trade_stack.items():
+        average_trade_value += trade_data['cost']
+
+    return average_trade_value
+
+def trade_info_adder(exchange, assets):
+
+    for symbol, data in assets.items():
+
+        trade_info = exchange.fetch_my_trades(symbol + "/USDT")
+
+        trade_value = trade_value_calculator(trade_info)
+
+        assets[symbol]['trade_value'] = trade_value
+        assets[symbol]['trade_price'] = trade_info[-1]['price']
+
+    return assets
+
+def pnl_info_adder(assets):
+
+    for symbol, data in assets.items():
+
+        assets[symbol]['pnl'] = data['current_value'] - data['trade_value']
+        assets[symbol]['pnl_percent'] = float("{:.3f}".format((assets[symbol]['pnl'] * 100) / data['trade_value']))
+
+    return assets
+
+def calculate_total_info(assets):
+    pass
+
 
 def assets_info(exchange):
     assets = {}
@@ -22,8 +85,13 @@ if __name__ == '__main__':
 
     assets, USDT_amount = assets_info(exchange)
 
-    for symbol in assets.keys():
-        try:
-            print(exchange.fetch_orders(symbol=symbol + "/USDT"))
-        except:
-            continue
+    # add current price and value
+    assets = current_info_adder(exchange, assets)
+
+    # add trade price and value
+    assets = trade_info_adder(exchange, assets)
+
+    # add pnl and pnl_percent
+    assets = pnl_info_adder(assets)
+
+    print(assets)
