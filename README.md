@@ -1,4 +1,4 @@
-# Binance PNL Checker 
+# Binance PNL Checker ( DEPRECATED )
 ![GPL3](https://img.shields.io/badge/license-GPL--3-blue?logo=gnu) 
 ![python](https://img.shields.io/badge/python-%3E=3.8-blue?logo=python&logoColor=white)
 ![os](https://img.shields.io/badge/os-linux-blue?logo=linux&logoColor=white) <br/>
